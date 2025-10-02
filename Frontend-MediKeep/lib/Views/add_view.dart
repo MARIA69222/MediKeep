@@ -85,7 +85,8 @@ class _AddViewState extends State<AddView> {
 
                 const Text("Dosis*"),
                 DropdownButtonFormField<String>(
-                  value: dosisSeleccionada,
+                  // <-- reemplazado value: por initialValue:
+                  initialValue: dosisSeleccionada,
                   items: [
                     "1 tableta",
                     "2 tabletas",
@@ -111,7 +112,8 @@ class _AddViewState extends State<AddView> {
 
                 const Text("Frecuencia*"),
                 DropdownButtonFormField<String>(
-                  value: frecuenciaSeleccionada,
+                  // <-- reemplazado value: por initialValue:
+                  initialValue: frecuenciaSeleccionada,
                   items: [
                     "4 horas",
                     "6 horas",
@@ -155,7 +157,8 @@ class _AddViewState extends State<AddView> {
 
                 const Text("Duración*"),
                 DropdownButtonFormField<String>(
-                  value: duracionSeleccionada,
+                  // <-- reemplazado value: por initialValue:
+                  initialValue: duracionSeleccionada,
                   items: [
                     "5 días",
                     "7 días",
@@ -242,6 +245,7 @@ class _AddViewState extends State<AddView> {
     );
   }
 }
+
 
 
 
