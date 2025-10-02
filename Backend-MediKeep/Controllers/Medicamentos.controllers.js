@@ -1,11 +1,11 @@
 const Medicamento = require("../Models/Medicamento");
-const MedicamentoService = require("../Services/MedicamentoService.js");
+const MedicamentoService = require("../Services/MedicamentoService");
 const medicamentoService = new MedicamentoService();
 
 // Obtener todos los medicamentos
 const obtenerMedicamentos = async (req, res) => {
   try {
-    return res.status(501).json({ message: "No implementado: obtenerMedicamentos" });
+    return res.status(200).json(await medicamentoService.getMedicamentos());
   } catch (error) {
     return res.status(500).json({ message: "Error interno", error: error.message });
   }
@@ -16,7 +16,6 @@ const obtenerMedicamentoPorId = async (req, res) => {
   try {
     const { id } = req.params;
     return res.status(200).json(await medicamentoService.getMedicamentoId(id));
-    // return res.status(501).json({ message: "No implementado: obtenerMedicamentoPorId", id });
   } catch (error) {
     return res.status(500).json({ message: "Error interno", error: error.message });
   }
@@ -25,9 +24,8 @@ const obtenerMedicamentoPorId = async (req, res) => {
 // Crear un nuevo medicamento
 const crearMedicamento = async (req, res) => {
   try {
-    const datos = req.body;
-    await medicamentoService.creacionMedicamento(datos);
-    return res.status(201).json({ message: "No implementado: crearMedicamento" });
+    const nuevoMedicamento = Medicamento.fromJson(req.body);
+    return res.status(201).json(await medicamentoService.creacionMedicamento(nuevoMedicamento));
   } catch (error) {
     return res.status(500).json({ message: "Error interno", error: error.message });
   }
@@ -61,3 +59,4 @@ module.exports = {
   actualizarMedicamento,
   eliminarMedicamento,
 };
+
