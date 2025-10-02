@@ -1,5 +1,6 @@
-// Services/NotificacionService.js
+const { ObjectId } = require("mongodb");
 const Conexion = require("../Database/Conexion");
+const Notificacion = require("../Models/Notificacion");
 
 class NotificacionService {
   constructor() {
@@ -14,42 +15,43 @@ class NotificacionService {
     return this._conexion;
   }
 
-  // Obtener una notificación por ID
   async getNotificacionId(id) {
     this.conexion = await this.db.connectDB();
-    let coleccion = await this.conexion.collection("notificaciones");
-    let consulta = { _id: id };
-    return await coleccion.findOne(consulta);
+    const coleccion = this.conexion.collection("notificaciones");
+    return await coleccion.findOne({ _id: new ObjectId(id) });
   }
 
-  // Crear nueva notificación
   async creacionNotificacion(notificacion) {
     this.conexion = await this.db.connectDB();
-    let coleccion = await this.conexion.collection("notificaciones");
-    await coleccion.insertOne(notificacion);
+    const coleccion = this.conexion.collection("notificaciones");
+    const data = notificacion.toJson();
+    const resultado = await coleccion.insertOne(data);
+    notificacion.idMongo = resultado.insertedId;
+    return JSON.parse(JSON.stringify(notificacion));
   }
 
-  // Obtener todas las notificaciones
   async getNotificaciones() {
     this.conexion = await this.db.connectDB();
-    let coleccion = await this.conexion.collection("notificaciones");
+    const coleccion = this.conexion.collection("notificaciones");
     return await coleccion.find({}).toArray();
   }
 
-  // Actualizar una notificación por ID
   async actualizarNotificacion(id, datos) {
     this.conexion = await this.db.connectDB();
-    let coleccion = await this.conexion.collection("notificaciones");
-    await coleccion.updateOne({ _id: id }, { $set: datos });
+    const coleccion = this.conexion.collection("notificaciones");
+    return await coleccion.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: datos }
+    );
   }
 
-  // Eliminar una notificación por ID
   async eliminarNotificacion(id) {
     this.conexion = await this.db.connectDB();
-    let coleccion = await this.conexion.collection("notificaciones");
-    await coleccion.deleteOne({ _id: id });
+    const coleccion = this.conexion.collection("notificaciones");
+    return await coleccion.deleteOne({ _id: new ObjectId(id) });
   }
 }
 
 module.exports = NotificacionService;
+
 

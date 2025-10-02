@@ -1,5 +1,6 @@
-// services/medicamento.service.js
+const { ObjectId } = require("mongodb");
 const Conexion = require("../Database/Conexion");
+const Medicamento = require("../Models/Medicamento");
 
 class MedicamentoService {
   constructor() {
@@ -14,22 +15,21 @@ class MedicamentoService {
     return this._conexion;
   }
 
-  // Obtener un medicamento por ID
   async getMedicamentoId(id) {
     this.conexion = await this.db.connectDB();
     const coleccion = this.conexion.collection("medicamentos");
-    const consulta = { _id: id }; // puedes ajustar si usas ObjectId
-    return await coleccion.findOne(consulta);
+    return await coleccion.findOne({ _id: new ObjectId(id) });
   }
 
-  // Crear un medicamento
-  async crearMedicamento(medicamento) {
+  async creacionMedicamento(medicamento) {
     this.conexion = await this.db.connectDB();
     const coleccion = this.conexion.collection("medicamentos");
-    await coleccion.insertOne(medicamento);
+    const data = medicamento.toJson();
+    const resultado = await coleccion.insertOne(data);
+    medicamento.idMongo = resultado.insertedId;
+    return JSON.parse(JSON.stringify(medicamento));
   }
 
-  // Obtener todos los medicamentos
   async getMedicamentos() {
     this.conexion = await this.db.connectDB();
     const coleccion = this.conexion.collection("medicamentos");
@@ -38,3 +38,4 @@ class MedicamentoService {
 }
 
 module.exports = MedicamentoService;
+
