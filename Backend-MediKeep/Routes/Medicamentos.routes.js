@@ -8,7 +8,7 @@ const {
   crearMedicamento,
   actualizarMedicamento,
   eliminarMedicamento
-} = require('../Controllers/Medicamentos.controllers');
+} = require('../Controllers/Medicamento.controllers.js');
 
 // Rutas para medicamentos
 router.get('/', obtenerMedicamentos);               // Obtener todos los medicamentos
