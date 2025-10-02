@@ -1,10 +1,10 @@
-class Notificacion {
-  constructor(idUsuarios, idMedicamento, hora, estado, tipo) {
-    this.idUsuarios = idUsuarios;
-    this.idMedicamento = idMedicamento;
-    this.hora = hora;
-    this.estado = estado; // pendiente / enviada / vista
-    this.tipo = tipo; // ejemplo: recordatorio / alerta
+class Medicamento {
+  constructor(nombre, motivo, duracion, frecuencia, estado) {
+    this.nombre = nombre;
+    this.motivo = motivo;
+    this.duracion = duracion;   // días
+    this.frecuencia = frecuencia; // cada X horas
+    this.estado = estado;       // activo / inactivo
   }
 
   set idMongo(id) {
@@ -12,24 +12,25 @@ class Notificacion {
   }
 
   static fromJson(data) {
-    return new Notificacion(
-      data.idUsuarios,
-      data.idMedicamento,
-      data.hora ? new Date(data.hora) : new Date(),
-      data.estado,
-      data.tipo
+    return new Medicamento(
+      data.nombre,
+      data.motivo,
+      data.duracion,
+      data.frecuencia,
+      data.estado
     );
   }
 
   toJson() {
     return {
-      idUsuarios: this.idUsuarios,
-      idMedicamento: this.idMedicamento,
-      hora: this.hora,
-      estado: this.estado,
-      tipo: this.tipo
+      nombre: this.nombre,
+      motivo: this.motivo,
+      duracion: this.duracion,
+      frecuencia: this.frecuencia,
+      estado: this.estado
     };
   }
 }
 
-module.exports = Notificacion;
+module.exports = Medicamento;
+
