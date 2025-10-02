@@ -1,5 +1,5 @@
 const Notificacion = require("../Models/Notificacion");
-const NotificacionService = require("../Services/NotificacionService");
+const NotificacionService = require("../Services/NotificacionesService");
 const notificacionService = new NotificacionService();
 
 const obtenerNotificaciones = async (req, res) => {
