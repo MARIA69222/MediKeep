@@ -1,27 +1,31 @@
 class Usuario {
-  constructor(nombre,apellido,edad, enfermedad, fechaNacimiento, contraseña,email) {
+  constructor(nombre, apellido, fechaNacimiento, tipoDocumento, numeroDocumento, correo, telefono, contrasena, enfermedad, fotoPerfil = null) {
     this.nombre = nombre;
     this.apellido = apellido;
-    this.edad = edad;
-    this.enfermedad = enfermedad;
     this.fechaNacimiento = fechaNacimiento;
-    this.contraseña = contraseña;
-    this.email = email;
+    this.tipoDocumento = tipoDocumento;
+    this.numeroDocumento = numeroDocumento;
+    this.correo = correo;
+    this.telefono = telefono;
+    this.contrasena = contrasena;
+    this.enfermedad = enfermedad || null;
+    this.fotoPerfil = fotoPerfil; 
   }
 
-  set idMongo(id) {
-    this.id = id;
-  }
+  set idMongo(id) { this.id = id; }
 
   static fromJson(data) {
     return new Usuario(
       data.nombre,
       data.apellido,
-      data.edad,
-      data.enfermedad,
       data.fechaNacimiento,
-      data.contraseña,
-      data.email
+      data.tipoDocumento,
+      data.numeroDocumento,
+      data.correo,
+      data.telefono,
+      data.contrasena,
+      data.enfermedad,
+      data.fotoPerfil
     );
   }
 
@@ -29,13 +33,17 @@ class Usuario {
     return {
       nombre: this.nombre,
       apellido: this.apellido,
-      edad: this.edad,
-      enfermedade: this.enfermedad,
       fechaNacimiento: this.fechaNacimiento,
-      contraseña: this.contraseña,
-      email: this.email
+      tipoDocumento: this.tipoDocumento,
+      numeroDocumento: this.numeroDocumento,
+      correo: this.correo,
+      telefono: this.telefono,
+      contrasena: this.contrasena,
+      enfermedad: this.enfermedad,
+      fotoPerfil: this.fotoPerfil
     };
   }
 }
 
 module.exports = Usuario;
+
