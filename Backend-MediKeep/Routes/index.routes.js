@@ -5,13 +5,13 @@ const routes = express.Router();
 const usuariosRoutes = require('./Usuarios.routes');
 const medicamentosRoutes = require('./Medicamentos.routes');
 const historialRoutes = require('./Historial.routes');
-const notificacionesRoutes = require('./Notificaciones.routes');
+
 
 
 // Definimos los prefijos para cada grupo de rutas
-routes.use('/usuarios', usuariosRoutes);
-routes.use('/medicamentos', medicamentosRoutes);
+routes.use('/usuario', usuariosRoutes);
+routes.use('/medicamento', medicamentosRoutes);
 routes.use('/historial', historialRoutes);
-routes.use('/notificaciones', notificacionesRoutes);
+
 
 module.exports = routes;
