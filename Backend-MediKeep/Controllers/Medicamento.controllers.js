@@ -1,5 +1,6 @@
 const Medicamento = require("../Models/Medicamento");
 const MedicamentoService = require("../Services/MedicamentoService");
+const { ObjectId } = require("mongodb");
 const medicamentoService = new MedicamentoService();
 
 // Obtener todos los medicamentos
@@ -36,19 +37,46 @@ const actualizarMedicamento = async (req, res) => {
   try {
     const { id } = req.params;
     const datosActualizados = req.body;
-    return res.status(501).json({ message: "No implementado: actualizarMedicamento", id });
+    delete datosActualizados._id; // nunca actualizamos el _id
+
+    const conexion = await medicamentoService.db.connectDB();
+    const coleccion = conexion.collection("medicamentos");
+
+    const resultado = await coleccion.findOneAndUpdate(
+      { _id: new ObjectId(id) },
+      { $set: datosActualizados },
+      { returnDocument: "after" }
+    );
+    if (resultado === null) {
+      return res.status(404).json({ message: "Medicamento no encontrado" });
+    }
+
+    return res.status(200).json({
+      message: "Medicamento actualizado con éxito",
+      medicamento: resultado
+    });
   } catch (error) {
-    return res.status(500).json({ message: "Error interno", error: error.message });
+    return res.status(500).json({ message: "Error al actualizar medicamento", error: error.message });
   }
-};
+}
 
 // Eliminar un medicamento
 const eliminarMedicamento = async (req, res) => {
   try {
     const { id } = req.params;
-    return res.status(501).json({ message: "No implementado: eliminarMedicamento", id });
+
+    const conexion = await medicamentoService.db.connectDB();
+    const coleccion = conexion.collection("medicamentos");
+
+    const resultado = await coleccion.deleteOne({ _id: new ObjectId(id) });
+
+    if (resultado.deletedCount === 0) {
+      return res.status(404).json({ message: "Medicamento no encontrado" });
+    }
+
+    return res.status(200).json({ message: "Medicamento eliminado con éxito" });
   } catch (error) {
-    return res.status(500).json({ message: "Error interno", error: error.message });
+    return res.status(500).json({ message: "Error al eliminar medicamento", error: error.message });
   }
 };
 
