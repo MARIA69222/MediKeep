@@ -1,10 +1,12 @@
 class Historial {
-  constructor(idUsuario, idMedicamentos, fecha, estado, ) {
+  constructor(idUsuario, idMedicamentos, fecha, estado) {
     this.idUsuario = idUsuario;
-    this.idMedicamentos = idMedicamentos;
-    this.fecha = fecha || new Date(); //rear un objeto de fecha con la fecha y hora actual del sistema.
+    // 👇 aseguramos que siempre sea array aunque manden solo 1 medicamento
+    this.idMedicamentos = Array.isArray(idMedicamentos)
+      ? idMedicamentos
+      : [idMedicamentos];
+    this.fecha = fecha || new Date(); 
     this.estado = estado; // tomado, omitido, suspendido
-    
   }
 
   set idMongo(id) {
@@ -14,7 +16,9 @@ class Historial {
   static fromJson(data) {
     return new Historial(
       data.idUsuario,
-      data.idMedicamentos,
+      Array.isArray(data.idMedicamentos)
+        ? data.idMedicamentos
+        : [data.idMedicamentos], // 👈 lo normalizamos aquí también
       data.fecha ? new Date(data.fecha) : new Date(),
       data.estado,
     );

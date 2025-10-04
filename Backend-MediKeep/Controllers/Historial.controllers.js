@@ -7,7 +7,7 @@ const historialService = new HistorialService();
 // Obtener todos los historiales
 const obtenerHistoriales = async (req, res) => {
   try {
-    return res.status(200).json(await historialService.getHistorial());
+    return res.status(200).json(await historialService.obtenerHistoriales());
   } catch (error) {
     return res.status(500).json({ message: "Error interno", error: error.message });
   }
@@ -17,7 +17,7 @@ const obtenerHistoriales = async (req, res) => {
 const obtenerHistorialPorId = async (req, res) => {
   try {
     const { id } = req.params;
-    return res.status(200).json(await historialService.getHistorialId(id));
+    return res.status(200).json(await historialService.obtenerHistorialPorId(id));
   } catch (error) {
     return res.status(500).json({ message: "Error interno", error: error.message });
   }
@@ -27,7 +27,7 @@ const obtenerHistorialPorId = async (req, res) => {
 const crearHistorial = async (req, res) => {
   try {
     const nuevoHistorial = Historial.fromJson(req.body);
-    return res.status(201).json(await historialService.creacionHistorial(nuevoHistorial));
+    return res.status(201).json(await historialService.crearHistorial(nuevoHistorial));
   } catch (error) {
     return res.status(500).json({ message: "Error interno", error: error.message });
   }
@@ -38,7 +38,7 @@ const actualizarHistorial = async (req, res) => {
   try {
     const { id } = req.params;
     const datosActualizados = { ...req.body };
-    delete datosActualizados._id; // nunca actualizar el _id
+    delete datosActualizados._id;
 
     const conexion = await historialService.db.connectDB();
     const coleccion = conexion.collection("historial");
@@ -48,11 +48,11 @@ const actualizarHistorial = async (req, res) => {
       { $set: datosActualizados },
       { returnDocument: "after" }
     );
-    console.log(resultado);
-    if (resultado === null) {
+
+    if (!resultado) {
       return res.status(404).json({ message: "Historial no encontrado" });
     }
-    
+
     return res.status(200).json({
       message: "Historial actualizado con éxito",
       historial: resultado
@@ -69,7 +69,6 @@ const actualizarHistorial = async (req, res) => {
 const eliminarHistorial = async (req, res) => {
   try {
     const { id } = req.params;
-
     const conexion = await historialService.db.connectDB();
     const coleccion = conexion.collection("historial");
 
@@ -79,10 +78,7 @@ const eliminarHistorial = async (req, res) => {
       return res.status(404).json({ message: "Historial no encontrado" });
     }
 
-    return res.status(200).json({
-      message: "Historial eliminado con éxito",
-      id
-    });
+    return res.status(200).json({ message: "Historial eliminado con éxito" });
   } catch (error) {
     return res.status(500).json({
       message: "Error al eliminar historial",

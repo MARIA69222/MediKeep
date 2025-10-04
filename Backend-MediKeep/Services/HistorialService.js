@@ -7,35 +7,49 @@ class HistorialService {
     this.db = new Conexion();
   }
 
-  set conexion(conexion) {
-    this._conexion = conexion;
+  // Obtener todos los historiales
+  async obtenerHistoriales() {
+    const conexion = await this.db.connectDB();
+    const coleccion = conexion.collection("historial");
+    return await coleccion.find({}).toArray();
   }
 
-  get conexion() {
-    return this._conexion;
-  }
-
-  async getHistorialId(id) {
-    this.conexion = await this.db.connectDB();
-    const coleccion = this.conexion.collection("historial");
+  // Obtener un historial por ID
+  async obtenerHistorialPorId(id) {
+    const conexion = await this.db.connectDB();
+    const coleccion = conexion.collection("historial");
     return await coleccion.findOne({ _id: new ObjectId(id) });
   }
 
-  async creacionHistorial(historial) {
-    this.conexion = await this.db.connectDB();
-    const coleccion = this.conexion.collection("historial");
+  // Crear historial
+  async crearHistorial(historial) {
+    const conexion = await this.db.connectDB();
+    const coleccion = conexion.collection("historial");
     const data = historial.toJson();
     const resultado = await coleccion.insertOne(data);
-    historial.idMongo = resultado.insertedId;
-    return JSON.parse(JSON.stringify(historial));
+    return { ...data, _id: resultado.insertedId };
   }
 
-  async getHistorial() {
-    this.conexion = await this.db.connectDB();
-    const coleccion = this.conexion.collection("historial");
-    return await coleccion.find({}).toArray();
+  // Actualizar historial
+  async actualizarHistorial(id, datosActualizados) {
+    const conexion = await this.db.connectDB();
+    const coleccion = conexion.collection("historial");
+    return await coleccion.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: datosActualizados }
+    );
+  }
+
+  // Eliminar historial
+  async eliminarHistorial(id) {
+    const conexion = await this.db.connectDB();
+    const coleccion = conexion.collection("historial");
+    return await coleccion.deleteOne({ _id: new ObjectId(id) });
   }
 }
 
 module.exports = HistorialService;
+
+
+
 
