@@ -1,7 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegisterView extends StatelessWidget {
-  const RegisterView({super.key});
+  RegisterView({super.key});
+
+  final String apiUrl = 'http://localhost:3001/api/usuario'; 
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController documentController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
+  String? _selectedIdType;
+
+  String result = '';
+
+  Future<void> _register(BuildContext context) async {
+    // Validación: verificar que ningún campo esté vacío
+    if (nameController.text.isEmpty ||
+        lastNameController.text.isEmpty ||
+        dobController.text.isEmpty ||
+        _selectedIdType == null ||
+        documentController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        phoneController.text.isEmpty ||
+        passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Completa todos los campos",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'nombre': nameController.text,
+          'correo': emailController.text,
+          'contrasena': passwordController.text,
+          'numeroDocumento': documentController.text,
+          'telefono': phoneController.text,
+          'fechaNacimiento': dobController.text,
+          'apellido': lastNameController.text,
+          'tipoDocumento': _selectedIdType,
+          'enfermedad': "",
+          'fotoPerfil': "",
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        print("Usuario creado: $responseData");
+
+        // Ir directo al dashboard
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      } else {
+        throw Exception('Failed to post data');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +146,7 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Nombre'),
+                    controller: nameController,
                   ),
                   const SizedBox(height: 25),
 
@@ -88,6 +159,7 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Apellido'),
+                    controller: lastNameController,
                   ),
                   const SizedBox(height: 25),
 
@@ -100,6 +172,7 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('DD / MM / YYYY'),
+                    controller: dobController,
                     keyboardType: TextInputType.datetime,
                   ),
                   const SizedBox(height: 25),
@@ -120,7 +193,9 @@ class RegisterView extends StatelessWidget {
                           value: 'ce', child: Text('Cédula de extranjería')),
                       DropdownMenuItem(value: 'pp', child: Text('Pasaporte')),
                     ],
-                    onChanged: (value) {},
+                    onChanged: (value) {
+                      _selectedIdType = value;
+                    },
                   ),
                   const SizedBox(height: 25),
 
@@ -133,6 +208,7 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Número de documento'),
+                    controller: documentController,
                     keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 25),
@@ -146,6 +222,7 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Correo electrónico'),
+                    controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                   ),
                   const SizedBox(height: 25),
@@ -159,6 +236,7 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Teléfono'),
+                    controller: phoneController,
                     keyboardType: TextInputType.phone,
                   ),
                   const SizedBox(height: 25),
@@ -173,24 +251,7 @@ class RegisterView extends StatelessWidget {
                   TextFormField(
                     obscureText: true,
                     decoration: _inputDecoration('Contraseña'),
-                  ),
-                  const SizedBox(height: 25),
-
-                  // Aceptar términos
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: false,
-                        onChanged: (value) {},
-                      ),
-                      const Text(
-                        'Acepto los Términos y condiciones',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black87,
-                        ),
-                      ),
-                    ],
+                    controller: passwordController,
                   ),
                   const SizedBox(height: 25),
 
@@ -199,7 +260,7 @@ class RegisterView extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Lógica crear cuenta
+                        _register(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF339966),
@@ -227,7 +288,8 @@ class RegisterView extends StatelessWidget {
                       Expanded(child: Divider(thickness: 1)),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Icon(Icons.circle, size: 8, color: Colors.black54),
+                        child: Icon(Icons.circle,
+                            size: 8, color: Colors.black54),
                       ),
                       Expanded(child: Divider(thickness: 1)),
                     ],
@@ -251,7 +313,7 @@ class RegisterView extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Lógica iniciar sesión
+                        Navigator.pushNamed(context, '/login');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF42A5F5),
@@ -279,19 +341,6 @@ class RegisterView extends StatelessWidget {
           ),
         ],
       ),
-
-      // 👇 Footer fijo abajo
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.only(bottom: 12.0, left: 16.0, top: 8),
-        color: Colors.transparent,
-        child: const Text(
-          'Copyright © 2025',
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.black54,
-          ),
-        ),
-      ),
     );
   }
 
@@ -310,4 +359,6 @@ class RegisterView extends StatelessWidget {
     );
   }
 }
+
+
 
