@@ -15,13 +15,16 @@ class NavBarMenu extends StatefulWidget {
   final String? title;
   final bool showBack;
   final Widget child; // contenido dinámico de cada vista
+  final String id; 
 
   const NavBarMenu({
     super.key,
     this.userName,
     this.title,
     this.showBack = false,
+    required this.id,
     required this.child,
+    
   });
 
   @override
@@ -30,10 +33,12 @@ class NavBarMenu extends StatefulWidget {
 
 class _NavBarMenuState extends State<NavBarMenu> {
   bool _isMenuOpen = false;
+  String id = '';
 
   void _toggleMenu() {
     setState(() {
       _isMenuOpen = !_isMenuOpen;
+      id = widget.id;
     });
   }
 
@@ -63,7 +68,8 @@ class _NavBarMenuState extends State<NavBarMenu> {
           if (_isMenuOpen)
             MenuHamburguesa(
               onClose: _toggleMenu,
-              userName: widget.userName, // 👈 pasamos el userName
+              userName: widget.userName, 
+              id: widget.id
             ),
         ],
       ),
@@ -133,12 +139,14 @@ class _NavBarMenuState extends State<NavBarMenu> {
 // 🔹 Menú hamburguesa integrado
 class MenuHamburguesa extends StatelessWidget {
   final VoidCallback onClose;
-  final String? userName; // 👈 recibimos el userName
+  final String? userName; 
+  final String id;  
 
   const MenuHamburguesa({
     super.key,
     required this.onClose,
     this.userName,
+    required this.id,
   });
 
   @override
@@ -199,7 +207,7 @@ class MenuHamburguesa extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ProfileView(),
+                            builder: (context) =>  ProfileView(id: id),
                           ),
                         );
                       },
@@ -215,7 +223,7 @@ class MenuHamburguesa extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const AddView(),
+                            builder: (context) =>  AddView(id: id),
                           ),
                         );
                       },
@@ -231,7 +239,7 @@ class MenuHamburguesa extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const HistoryView(),
+                            builder: (context) =>  HistoryView( id: id),
                           ),
                         );
                       },
@@ -247,7 +255,7 @@ class MenuHamburguesa extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const LoginView(),
+                            builder: (context) =>  LoginView(),
                           ),
                         );
                       },

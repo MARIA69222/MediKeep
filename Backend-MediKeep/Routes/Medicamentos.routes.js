@@ -7,15 +7,17 @@ const {
   obtenerMedicamentoPorId,
   crearMedicamento,
   actualizarMedicamento,
-  eliminarMedicamento
+  eliminarMedicamento,
+  obtenerMedicamentosPorUsuario, // <-- nueva función
 } = require('../Controllers/Medicamento.controllers.js');
 
 // Rutas para medicamentos
-router.get('/', obtenerMedicamentos);               // Obtener todos los medicamentos
-router.get('/:id', obtenerMedicamentoPorId);        // Obtener un medicamento por ID
-router.post('/', crearMedicamento);                 // Crear un nuevo medicamento
-router.put('/:id', actualizarMedicamento);          // Actualizar un medicamento existente
-router.delete('/:id', eliminarMedicamento);         // Eliminar un medicamento
+router.get('/', obtenerMedicamentos);                     // Obtener todos los medicamentos
+router.get('/:id', obtenerMedicamentoPorId);              // Obtener un medicamento por ID
+router.get('/usuario/:userId', obtenerMedicamentosPorUsuario); // Obtener medicamentos de un usuario específico
+router.post('/', crearMedicamento);                       // Crear un nuevo medicamento
+router.put('/:id', actualizarMedicamento);                // Actualizar un medicamento existente
+router.delete('/:id', eliminarMedicamento);               // Eliminar un medicamento
 
 module.exports = router;
 

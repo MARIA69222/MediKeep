@@ -1,19 +1,8 @@
-import 'package:flutter/material.dart'; // Trae Flutter y sus widgets.
-import 'app.dart'; // Aquí va la  App principal con rutas y vistas
+import 'package:flutter/material.dart';
+import 'app.dart'; // Aquí está tu App con rutas y vistas
 
-void main() { // main es el punto de entrada de Flutter.
-  runApp(const MyApp()); //arranca la app y le pasa el widget raíz (MyApp).
-
+void main() {
+  runApp(const App()); //“Arranca mi aplicación y muéstrame el widget App como la raíz de todo”.
+  // El widget App es un Widget que configura MaterialApp con rutas y temas.
 }
 
-class MyApp extends StatelessWidget { //es el widget raíz de la aplicación.
-  const MyApp({super.key}); //porque no cambia su estado; solo inicializa la app.
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: App(), // Pantalla inicial de la app
-    );
-  }
-}

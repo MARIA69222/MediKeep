@@ -1,11 +1,68 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import '../Widgets/navbar_menu.dart';
 import 'edit_profile_view.dart';
-import 'dashboard_view.dart'; // ✅ Importamos DashboardScreen
-import 'login_view.dart'; // ✅ Importamos LoginView
+import 'dashboard_view.dart';
+import 'login_view.dart';
 
-class ProfileView extends StatelessWidget {
-  const ProfileView({super.key});
+
+class ProfileView extends StatefulWidget {
+  final String id ;
+  const ProfileView({super.key,required this.id});
+
+  @override
+  State<ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
+  Map<String, dynamic> usuario = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUsuario(widget.id) ;
+  }
+
+  // Traer datos del usuario desde la API
+  
+  Future<void> _fetchUsuario( String userId ) async {
+    final url = Uri.parse('http://localhost:3001/api/usuario/$userId');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          usuario = data;
+        });
+      } else {
+        print('Error al cargar usuario: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Excepción al obtener usuario: $e');
+    }
+  }
+
+  // Calcular edad a partir de fecha de nacimiento DD/MM/YYYY
+  String calcularEdad(String fechaNacimiento) {
+    try {
+      final partes = fechaNacimiento.split('/'); // "DD/MM/YYYY"
+      final dia = int.parse(partes[0]);
+      final mes = int.parse(partes[1]);
+      final anio = int.parse(partes[2]);
+      final nacimiento = DateTime(anio, mes, dia);
+      final hoy = DateTime.now();
+      int edad = hoy.year - nacimiento.year;
+      if (hoy.month < nacimiento.month || (hoy.month == nacimiento.month && hoy.day < nacimiento.day)) {
+        edad--;
+      }
+      return edad.toString();
+    } catch (e) {
+      return "";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +74,8 @@ class ProfileView extends StatelessWidget {
     final double horizontalPadding = screenWidth * 0.06;
 
     return NavBarMenu(
-      userName: "Maria",
+      id: widget.id,
+      userName: usuario['nombre'] ?? "",
       child: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -31,7 +89,7 @@ class ProfileView extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔹 Flecha atrás -> Dashboard
+                // Flecha atrás
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Align(
@@ -42,8 +100,8 @@ class ProfileView extends StatelessWidget {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const DashboardScreen(
-                              userName: "Maria", // ✅ pasamos userName
+                            builder: (context) => DashboardScreen(
+                              userName: usuario['nombre'] ?? "",
                             ),
                           ),
                         );
@@ -70,12 +128,17 @@ class ProfileView extends StatelessWidget {
                 SizedBox(height: screenHeight * 0.03),
 
                 // Campos
-                _buildProfileField(label: "Nombre", hint: "Nombre"),
-                _buildProfileField(label: "Apellido", hint: "Apellido"),
-                _buildProfileField(label: "Fecha de nacimiento", hint: "DD / MM / YYYY"),
-                _buildProfileField(label: "Teléfono", hint: "Teléfono"),
-                _buildProfileField(label: "Edad", hint: "Edad"),
-                _buildProfileField(label: "Enfermedad", hint: "Enfermedad"),
+                _buildProfileField(label: "Nombre", hint: usuario['nombre'] ?? ""),
+                _buildProfileField(label: "Apellido", hint: usuario['apellido'] ?? ""),
+                _buildProfileField(label: "Fecha de nacimiento", hint: usuario['fechaNacimiento'] ?? ""),
+                _buildProfileField(label: "Teléfono", hint: usuario['telefono'] ?? ""),
+                _buildProfileField(
+                  label: "Edad",
+                  hint: usuario['fechaNacimiento'] != null
+                      ? calcularEdad(usuario['fechaNacimiento'])
+                      : "",
+                ),
+                _buildProfileField(label: "Enfermedad", hint: usuario['enfermedad'] ?? ""),
 
                 SizedBox(height: screenHeight * 0.03),
 
@@ -88,7 +151,7 @@ class ProfileView extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const EditProfileView()),
+                          MaterialPageRoute(builder: (context) =>  EditProfileView(id:widget.id)),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -107,7 +170,7 @@ class ProfileView extends StatelessWidget {
 
                 SizedBox(height: screenHeight * 0.015),
 
-                // 🔹 Botón cerrar sesión -> LoginView
+                // Cerrar sesión
                 Center(
                   child: SizedBox(
                     width: screenWidth * 0.7 > 360 ? 360 : screenWidth * 0.7,
@@ -116,9 +179,7 @@ class ProfileView extends StatelessWidget {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginView(),
-                          ),
+                          MaterialPageRoute(builder: (context) => LoginView()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -180,6 +241,7 @@ class ProfileView extends StatelessWidget {
     );
   }
 }
+
 
 
 

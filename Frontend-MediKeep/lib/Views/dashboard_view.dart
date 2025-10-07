@@ -1,6 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 // ✅ Importa el nuevo widget unificado
 import '../Widgets/navbar_menu.dart';
@@ -10,10 +13,43 @@ class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key, required this.userName});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  _DashboardScreenState createState() => _DashboardScreenState();
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _getuser(widget.userName).then((success) {});
+  }
+
+  String name = "";
+  String id = "";
+  final String apiUrl = 'http://localhost:3001/api/usuario';
+
+  Future<void> _getuser(String userName) async {
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl + '/correo'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{'correo': userName}),
+      );
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        setState(() {
+          name = responseData['nombre'];
+          id = responseData['_id'];
+        });
+      } else {
+        throw Exception('Failed to post data');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
@@ -23,7 +59,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return NavBarMenu(
-      userName: widget.userName, // ✅ Muestra el usuario en el header
+      id: id,
+      userName: name, // ✅ Muestra el usuario en el header
       child: Stack(
         children: [
           // ---------------- Fondo con imagen ----------------
@@ -70,10 +107,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     headerStyle: const HeaderStyle(
                       formatButtonVisible: false,
                       titleCentered: true,
-                      leftChevronIcon:
-                          Icon(Icons.chevron_left, color: Colors.black),
-                      rightChevronIcon:
-                          Icon(Icons.chevron_right, color: Colors.black),
+                      leftChevronIcon: Icon(
+                        Icons.chevron_left,
+                        color: Colors.black,
+                      ),
+                      rightChevronIcon: Icon(
+                        Icons.chevron_right,
+                        color: Colors.black,
+                      ),
                     ),
                     calendarBuilders: CalendarBuilders(
                       defaultBuilder: (context, day, focusedDay) {
@@ -130,7 +171,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       if (_medicamentos.isNotEmpty)
                         ..._medicamentos.map((med) {
                           return _buildMedicineCard(
-                              med["nombre"]!, med["hora"]!);
+                            med["nombre"]!,
+                            med["hora"]!,
+                          );
                         })
                       else
                         // ✅ Mensaje cuando no hay medicamentos
@@ -175,10 +218,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // ---------------- Helpers del calendario ----------------
   Widget _buildDayContent(DateTime day) {
     return Center(
-      child: Text(
-        '${day.day}',
-        style: const TextStyle(color: Colors.black),
-      ),
+      child: Text('${day.day}', style: const TextStyle(color: Colors.black)),
     );
   }
 
@@ -224,8 +264,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Text(
                 name,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
               ),
               Text(
                 time,
@@ -247,5 +289,3 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 }
-
-

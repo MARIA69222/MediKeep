@@ -79,6 +79,22 @@ const eliminarMedicamento = async (req, res) => {
     return res.status(500).json({ message: "Error al eliminar medicamento", error: error.message });
   }
 };
+// Obtener medicamentos por usuario
+const obtenerMedicamentosPorUsuario = async (req, res) => {
+  try {
+    const { userId } = req.params; // recibimos el id del usuario
+    const conexion = await medicamentoService.db.connectDB();
+    const coleccion = conexion.collection("medicamentos");
+
+    // Filtramos por idUsuario
+    const medicamentos = await coleccion.find({ idUsuario: userId }).toArray();
+
+    return res.status(200).json(medicamentos);
+  } catch (error) {
+    return res.status(500).json({ message: "Error al obtener medicamentos del usuario", error: error.message });
+  }
+};
+
 
 module.exports = {
   obtenerMedicamentos,
@@ -86,5 +102,6 @@ module.exports = {
   crearMedicamento,
   actualizarMedicamento,
   eliminarMedicamento,
+  obtenerMedicamentosPorUsuario
 };
 

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import '../Widgets/success_dialog.dart'; 
-import '../Widgets/navbar_menu.dart'; // ✅ usamos el navbar unificado
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import '../Widgets/navbar_menu.dart'; 
 
 class AddView extends StatefulWidget {
-  const AddView({super.key});
+  final String id ;
+  const AddView({super.key, required this.id});
 
   @override
   State<AddView> createState() => _AddViewState();
@@ -31,11 +34,85 @@ class _AddViewState extends State<AddView> {
     }
   }
 
+  // función para hacer la petición POST
+  Future<void> _guardarMedicamento(String id) async {
+    if (nombreController.text.isEmpty ||
+        descripcionController.text.isEmpty ||
+        dosisSeleccionada == null ||
+        frecuenciaSeleccionada == null ||
+        horaSeleccionada == null ||
+        (!usoProlongado && duracionSeleccionada == null)) {
+
+      // Mensaje si faltan campos obligatorios
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Por favor, complete todos los campos obligatorios."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Datos a enviar a la base de datos
+    final medicamentoData = {
+      "idUsuario": id, 
+      "nombre": nombreController.text,
+      "descripcion": descripcionController.text,
+      "dosis": dosisSeleccionada,
+      "frecuencia": frecuenciaSeleccionada,
+      "horaInicio": horaSeleccionada!.format(context),
+      "duracion": usoProlongado ? null : duracionSeleccionada, //  si es prolongado, no enviamos duración
+      "usoProlongado": usoProlongado,
+      "estado": "activo",
+      "fecha": DateTime.now().toIso8601String(),
+    };
+
+    try {
+      final response = await http.post(
+        Uri.parse("http://localhost:3001/api/medicamento"),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(medicamentoData),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // Éxito
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Medicamento guardado correctamente."),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Redirigimos al historial pasando el medicamento
+        Navigator.pushReplacementNamed(
+          context,
+          "/history",
+          arguments: id,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error al guardar: ${response.body}"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error de conexión: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return NavBarMenu(
+      id: widget.id,
       userName: "Maria", // ✅ mismo estilo que ProfileView
-      showBack: true,    // ✅ mantiene botón atrás
+      showBack: true,
       child: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -61,7 +138,6 @@ class _AddViewState extends State<AddView> {
                 ),
                 const SizedBox(height: 20),
 
-                // Campos de formulario
                 const Text("Nombre*"),
                 TextField(
                   controller: nombreController,
@@ -85,8 +161,7 @@ class _AddViewState extends State<AddView> {
 
                 const Text("Dosis*"),
                 DropdownButtonFormField<String>(
-                  // <-- reemplazado value: por initialValue:
-                  initialValue: dosisSeleccionada,
+                  value: dosisSeleccionada,
                   items: [
                     "1 tableta",
                     "2 tabletas",
@@ -112,8 +187,7 @@ class _AddViewState extends State<AddView> {
 
                 const Text("Frecuencia*"),
                 DropdownButtonFormField<String>(
-                  // <-- reemplazado value: por initialValue:
-                  initialValue: frecuenciaSeleccionada,
+                  value: frecuenciaSeleccionada,
                   items: [
                     "4 horas",
                     "6 horas",
@@ -155,32 +229,33 @@ class _AddViewState extends State<AddView> {
                 ),
                 const SizedBox(height: 20),
 
-                const Text("Duración*"),
-                DropdownButtonFormField<String>(
-                  // <-- reemplazado value: por initialValue:
-                  initialValue: duracionSeleccionada,
-                  items: [
-                    "5 días",
-                    "7 días",
-                    "10 días",
-                    "15 días",
-                    "30 días",
-                  ].map((opcion) {
-                    return DropdownMenuItem(
-                      value: opcion,
-                      child: Text(opcion),
-                    );
-                  }).toList(),
-                  onChanged: (valor) {
-                    setState(() {
-                      duracionSeleccionada = valor;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
+                if (!usoProlongado) ...[
+                  const Text("Duración*"),
+                  DropdownButtonFormField<String>(
+                    value: duracionSeleccionada,
+                    items: [
+                      "5 días",
+                      "7 días",
+                      "10 días",
+                      "15 días",
+                      "30 días",
+                    ].map((opcion) {
+                      return DropdownMenuItem(
+                        value: opcion,
+                        child: Text(opcion),
+                      );
+                    }).toList(),
+                    onChanged: (valor) {
+                      setState(() {
+                        duracionSeleccionada = valor;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                ],
 
                 Row(
                   children: [
@@ -189,6 +264,9 @@ class _AddViewState extends State<AddView> {
                       onChanged: (valor) {
                         setState(() {
                           usoProlongado = valor ?? false;
+                          if (usoProlongado) {
+                            duracionSeleccionada = null; // 👈 limpiamos duración
+                          }
                         });
                       },
                     ),
@@ -201,34 +279,9 @@ class _AddViewState extends State<AddView> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      final parentContext = context;
-
-                      final nuevoMedicamento = {
-                        "nombre": nombreController.text,
-                        "descripcion": descripcionController.text,
-                        "dosis": dosisSeleccionada,
-                        "frecuencia": frecuenciaSeleccionada,
-                        "hora": horaSeleccionada?.format(context),
-                        "duracion": duracionSeleccionada,
-                        "usoProlongado": usoProlongado,
-                      };
-
-                      showDialog(
-                        context: context,
-                        builder: (context) => SuccessDialog(
-                          title: "¡Medicamento guardado!",
-                          message: "Se ha añadido correctamente a tu lista",
-                          onAccept: () {
-                            Navigator.pushReplacementNamed(
-                              parentContext,
-                              "/history",
-                              arguments: nuevoMedicamento,
-                            );
-                          },
-                        ),
-                      );
-                    },
+                    onPressed: () async {
+                       await _guardarMedicamento(widget.id);
+                       },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
@@ -245,6 +298,9 @@ class _AddViewState extends State<AddView> {
     );
   }
 }
+
+
+
 
 
 

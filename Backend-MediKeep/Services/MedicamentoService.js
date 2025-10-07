@@ -15,7 +15,31 @@ class MedicamentoService {
     return this._conexion;
   }
 
+  // ✅ Función para actualizar estados automáticamente
+  async finalizarMedicamentos() {
+    this.conexion = await this.db.connectDB();
+    const coleccion = this.conexion.collection("medicamentos");
+
+    const activos = await coleccion.find({ estado: "activo" }).toArray();
+    const ahora = new Date();
+
+    for (const med of activos) {
+      const inicio = new Date(med.horaInicio);
+      const duracionDias = parseInt(med.duracion) || 0;
+      const fin = new Date(inicio);
+      fin.setDate(inicio.getDate() + duracionDias);
+
+      if (ahora >= fin) {
+        await coleccion.updateOne(
+          { _id: med._id },
+          { $set: { estado: "finalizado" } }
+        );
+      }
+    }
+  }
+
   async getMedicamentoId(id) {
+    await this.finalizarMedicamentos(); // ✅ actualizar estado antes de devolver
     this.conexion = await this.db.connectDB();
     const coleccion = this.conexion.collection("medicamentos");
     return await coleccion.findOne({ _id: new ObjectId(id) });
@@ -31,6 +55,7 @@ class MedicamentoService {
   }
 
   async getMedicamentos() {
+    await this.finalizarMedicamentos(); // ✅ actualizar estados antes de devolver
     this.conexion = await this.db.connectDB();
     const coleccion = this.conexion.collection("medicamentos");
     return await coleccion.find({}).toArray();
@@ -53,5 +78,6 @@ class MedicamentoService {
 }
 
 module.exports = MedicamentoService;
+
 
 

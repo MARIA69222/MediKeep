@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../Widgets/navbar_menu.dart';
 import 'history_view.dart';
-import '../Widgets/reactivate_success_dialog.dart'; // 👈 Import agregado
+
 
 // 🔹 Recibe un medicamento en el constructor
 class MedicationDetailView extends StatefulWidget {
   final Map<String, dynamic> medicamento;
+  final String id ;
 
-  const MedicationDetailView({super.key, required this.medicamento});
+  const MedicationDetailView({super.key, required this.medicamento, required this.id});
 
   @override
   State<MedicationDetailView> createState() => _MedicationDetailViewState();
@@ -19,6 +20,7 @@ class _MedicationDetailViewState extends State<MedicationDetailView> {
     // Usamos NavBarMenu como root (no añadimos otro Scaffold).
     // Le pasamos el contenido de la pantalla como `child`.
     return NavBarMenu(
+      id: widget.id,
       userName: "Maria",
       child: Container(
         decoration: const BoxDecoration(
@@ -43,7 +45,7 @@ class _MedicationDetailViewState extends State<MedicationDetailView> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const HistoryView(),
+                          builder: (context) => HistoryView(id:widget.id,),
                         ),
                       );
                     },
@@ -80,7 +82,7 @@ class _MedicationDetailViewState extends State<MedicationDetailView> {
                     child: ElevatedButton(
                       onPressed: () {
                         // Aquí va la lógica de reactivar medicamento (por ahora solo vista)
-                        ReactivateSuccessDialog.show(context); // 👈 agregado
+                        
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,

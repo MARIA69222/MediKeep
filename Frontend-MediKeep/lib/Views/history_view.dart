@@ -1,50 +1,73 @@
 // Vista: Historial de Medicamentos
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 // Importamos las pantallas relacionadas.
 import 'dashboard_view.dart'; // Pantalla principal (DashboardScreen)
 import 'add_view.dart'; // Pantalla para agregar medicamento (AddView)
 import 'medication_detail_view.dart'; // Pantalla de detalle de medicamento
 
-// Importamos el nuevo Navbar (asegúrate de que la ruta y nombre de archivo coincidan)
+// Importamos el nuevo Navbar
 import '../Widgets/navbar_menu.dart';
 
 class HistoryView extends StatefulWidget {
-  const HistoryView({super.key});
+  final String id ;
+  const HistoryView({super.key, required this.id});
 
   @override
   State<HistoryView> createState() => _HistoryViewState();
 }
 
 class _HistoryViewState extends State<HistoryView> {
-  // Lista local de medicamentos (vacía por defecto).
   List<Map<String, dynamic>> medicamentos = [];
+  bool mostrarPopupInicial = true; // Solo se muestra si NO hay medicamentos
 
-  // Controla si se muestra la tarjeta emergente inicial (true = se muestra)
-  bool mostrarPopupInicial = true;
+  @override
+  void initState() {
+    super.initState();
+    _fetchMedicamentos(widget.id); // Traer medicamentos al iniciar la pantalla
+  }
 
-  // 🔹 Función que abre AddView y espera un resultado
+  // Función GET para obtener los medicamentos del usuario
+  Future<void> _fetchMedicamentos( String userId) async {
+    final url = Uri.parse('http://localhost:3001/api/medicamento/usuario/$userId');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          medicamentos = data.map((e) => e as Map<String, dynamic>).toList();
+          // Solo mostrar popup si la lista está vacía
+          mostrarPopupInicial = medicamentos.isEmpty;
+        });
+      } else {
+        print('Error al cargar medicamentos: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Excepción al obtener medicamentos: $e');
+    }
+  }
+
+  // Función que abre AddView y actualiza la lista al regresar
   Future<void> _abrirAddView() async {
     final nuevoMedicamento = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const AddView()),
+      MaterialPageRoute(builder: (context) => AddView(id: widget.id)),
     );
 
-    // Si AddView devuelve un medicamento válido, lo agregamos a la lista
-    if (nuevoMedicamento != null && nuevoMedicamento is Map<String, dynamic>) {
-      setState(() {
-        medicamentos.add(nuevoMedicamento);
-        mostrarPopupInicial = false; // Ocultamos el popup si se agregó uno
-      });
+    // Si se agregó un medicamento, recargamos la lista completa desde la API
+    if (nuevoMedicamento != null) {
+      _fetchMedicamentos(widget.id); // Refresca automáticamente el historial
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Usamos NavBarMenu como contenedor principal. NO tocamos la lógica interna.
     return NavBarMenu(
-      userName: "Usuario", // muestra nombre y avatar en el header
-      // child contiene tod el contenido de la vista (debajo del header)
+      id: widget.id,
+      userName: "Usuario",
       child: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -55,10 +78,8 @@ class _HistoryViewState extends State<HistoryView> {
         child: SafeArea(
           child: Stack(
             children: [
-              // Contenido principal (columna con botón volver, título y lista)
               Column(
                 children: [
-                  // Botón volver debajo del navbar (mantenemos la misma lógica)
                   Align(
                     alignment: Alignment.centerLeft,
                     child: IconButton(
@@ -67,7 +88,7 @@ class _HistoryViewState extends State<HistoryView> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const DashboardScreen(
+                            builder: (context) => DashboardScreen(
                               userName: "Usuario",
                             ),
                           ),
@@ -75,35 +96,31 @@ class _HistoryViewState extends State<HistoryView> {
                       },
                     ),
                   ),
-
-                  // Título centrado
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Text(
                       "Historial de Medicamentos",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
-                  // Área principal: lista o mensaje
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Builder(builder: (context) {
+                        // Si no hay medicamentos y se debe mostrar popup
                         if (mostrarPopupInicial) {
-                          // Si está el popup inicial NO mostramos la lista debajo (el popup se renderiza en overlay)
                           return const SizedBox.shrink();
                         }
 
+                        // Si la lista está vacía, mensaje estático (no popup)
                         if (medicamentos.isEmpty) {
                           return const Center(
                             child: Text(
                               "Agrega un medicamento para empezar tu historial.",
                               style: TextStyle(
-                                color: Color.fromARGB(255, 34, 34, 34),
+                                color: Color.fromARGB(255, 1, 1, 1),
                                 fontSize: 15,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -112,25 +129,47 @@ class _HistoryViewState extends State<HistoryView> {
                           );
                         }
 
-                        // Lista de medicamentos
+                        // Lista de medicamentos 
                         return ListView.builder(
                           padding: const EdgeInsets.only(top: 0, bottom: 32),
                           itemCount: medicamentos.length,
                           itemBuilder: (context, index) {
                             final med = medicamentos[index];
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 12),
-                              child: ListTile(
-                                title: Text(med["nombre"] ?? "Medicamento"),
-                                subtitle: Text(med["dosis"] ?? "Dosis no definida"),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => MedicationDetailView(medicamento: med),
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 8), // margen entre cajones
+                              child: Card(
+                                color: Colors.white, // cajón completamente blanco
+                                elevation: 15, // sombra para profundidad
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: const BorderSide(color: Colors.grey, width: 1), // contorno
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  title: Text(
+                                    med["nombre"] ?? "Medicamento",
+                                    style: const TextStyle(
+                                      color: Colors.black, // letra negra
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
                                     ),
-                                  );
-                                },
+                                  ),
+                                  subtitle: Text(
+                                    med["dosis"] ?? "Dosis no definida",
+                                    style: const TextStyle(
+                                      color: Colors.black, // letra negra
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => MedicationDetailView(medicamento: med , id: widget.id),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             );
                           },
@@ -141,16 +180,13 @@ class _HistoryViewState extends State<HistoryView> {
                 ],
               ),
 
-              // ---------- Popup inicial (overlay) ----------
-              if (mostrarPopupInicial) ...[
-                // oscurece el fondo del area del child
+              // ---------- Popup inicial solo si no hay medicamentos ----------
+              if (mostrarPopupInicial && medicamentos.isEmpty) ...[
                 Positioned.fill(
                   child: Container(
                     color: const Color.fromRGBO(0, 0, 0, 0.5),
                   ),
                 ),
-
-                // tarjeta emergente central
                 Center(
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -211,7 +247,6 @@ class _HistoryViewState extends State<HistoryView> {
                             ),
                           ],
                         ),
-
                         Positioned(
                           top: 0,
                           right: 0,
@@ -230,13 +265,13 @@ class _HistoryViewState extends State<HistoryView> {
                 ),
               ],
 
-              // ---------- FloatingActionButton personalizado (dentro del child) ----------
+              // FloatingActionButton
               if (!mostrarPopupInicial)
                 Positioned(
                   right: 16,
                   bottom: 16,
                   child: FloatingActionButton(
-                    backgroundColor: const Color(0xFF3CAC6B),
+                    backgroundColor: const Color.fromARGB(255, 99, 185, 135),
                     onPressed: _abrirAddView,
                     child: const Icon(Icons.add),
                   ),
@@ -248,6 +283,8 @@ class _HistoryViewState extends State<HistoryView> {
     );
   }
 }
+
+
 
 
 

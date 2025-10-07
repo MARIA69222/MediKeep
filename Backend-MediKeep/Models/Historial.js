@@ -1,7 +1,7 @@
 class Historial {
   constructor(idUsuario, idMedicamentos, fecha, estado) {
     this.idUsuario = idUsuario;
-    // 👇 aseguramos que siempre sea array aunque manden solo 1 medicamento
+    //  aseguramos que siempre sea array aunque manden solo 1 medicamento
     this.idMedicamentos = Array.isArray(idMedicamentos)
       ? idMedicamentos
       : [idMedicamentos];
