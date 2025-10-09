@@ -25,7 +25,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String name = "";
   String id = "";
-  final String apiUrl = 'http://localhost:3001/api/usuario';
+  final String apiUrl = 'https://medikeep.onrender.com';
 
   Future<void> _getuser(String userName) async {
     try {

@@ -21,7 +21,7 @@ class _MedicationDetailViewState extends State<MedicationDetailView> {
     // Le pasamos el contenido de la pantalla como `child`.
     return NavBarMenu(
       id: widget.id,
-      userName: "Maria",
+      userName: "",
       child: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(

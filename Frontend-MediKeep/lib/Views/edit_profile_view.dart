@@ -25,16 +25,18 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   File? _profileImage;
   final ImagePicker _picker = ImagePicker();
-  String userName="" ; 
+  String userName="" ;
+  
 
   @override
   void initState() {
     super.initState();
     _loadUsuario(widget.id);
+    _getuser();
   }
 
   Future<void> _loadUsuario(String userId) async {
-    final url = Uri.parse('http://localhost:3001/api/usuario/$userId');
+    final url = Uri.parse('https://medikeep.onrender.com$userId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -55,6 +57,27 @@ class _EditProfileViewState extends State<EditProfileView> {
       }
     } catch (e) {
       print('Excepción al obtener usuario: $e');
+    }
+  }
+// getuser
+  Future<void> _getuser() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://medikeep.onrender.com'+ widget.id),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        setState(() {
+          userName = responseData['correo'];
+        });
+      } else {
+        throw Exception('Failed to post data');
+      }
+    } catch (e) {
+      print('Error: $e');
     }
   }
 
@@ -169,7 +192,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
     return NavBarMenu(
       id: widget.id,
-      userName: widget.id,
+      userName: userName,
       child: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(

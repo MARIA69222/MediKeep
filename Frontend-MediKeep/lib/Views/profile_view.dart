@@ -7,10 +7,9 @@ import 'edit_profile_view.dart';
 import 'dashboard_view.dart';
 import 'login_view.dart';
 
-
 class ProfileView extends StatefulWidget {
-  final String id ;
-  const ProfileView({super.key,required this.id});
+  final String id;
+  const ProfileView({super.key, required this.id});
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
@@ -18,17 +17,19 @@ class ProfileView extends StatefulWidget {
 
 class _ProfileViewState extends State<ProfileView> {
   Map<String, dynamic> usuario = {};
+  String userName = "";
 
   @override
   void initState() {
     super.initState();
-    _fetchUsuario(widget.id) ;
+    _fetchUsuario(widget.id);
+    _getuser();
   }
 
   // Traer datos del usuario desde la API
-  
-  Future<void> _fetchUsuario( String userId ) async {
-    final url = Uri.parse('http://localhost:3001/api/usuario/$userId');
+
+  Future<void> _fetchUsuario(String userId) async {
+    final url = Uri.parse('https://medikeep.onrender.com$userId');
 
     try {
       final response = await http.get(url);
@@ -45,6 +46,27 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
+  Future<void> _getuser() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://medikeep.onrender.com'+widget.id),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        setState(() {
+          userName = responseData['correo'];
+        });
+      } else {
+        throw Exception('Failed to post data');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   // Calcular edad a partir de fecha de nacimiento DD/MM/YYYY
   String calcularEdad(String fechaNacimiento) {
     try {
@@ -55,7 +77,8 @@ class _ProfileViewState extends State<ProfileView> {
       final nacimiento = DateTime(anio, mes, dia);
       final hoy = DateTime.now();
       int edad = hoy.year - nacimiento.year;
-      if (hoy.month < nacimiento.month || (hoy.month == nacimiento.month && hoy.day < nacimiento.day)) {
+      if (hoy.month < nacimiento.month ||
+          (hoy.month == nacimiento.month && hoy.day < nacimiento.day)) {
         edad--;
       }
       return edad.toString();
@@ -75,7 +98,7 @@ class _ProfileViewState extends State<ProfileView> {
 
     return NavBarMenu(
       id: widget.id,
-      userName: usuario['nombre'] ?? "",
+      userName: userName,
       child: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
@@ -85,7 +108,12 @@ class _ProfileViewState extends State<ProfileView> {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(horizontalPadding, 8, horizontalPadding, 24),
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              8,
+              horizontalPadding,
+              24,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -95,13 +123,17 @@ class _ProfileViewState extends State<ProfileView> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: IconButton(
-                      icon: const Icon(Icons.arrow_back, size: 28, color: Colors.black),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        size: 28,
+                        color: Colors.black,
+                      ),
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => DashboardScreen(
-                              userName: usuario['nombre'] ?? "",
+                              userName: userName,
                             ),
                           ),
                         );
@@ -128,17 +160,32 @@ class _ProfileViewState extends State<ProfileView> {
                 SizedBox(height: screenHeight * 0.03),
 
                 // Campos
-                _buildProfileField(label: "Nombre", hint: usuario['nombre'] ?? ""),
-                _buildProfileField(label: "Apellido", hint: usuario['apellido'] ?? ""),
-                _buildProfileField(label: "Fecha de nacimiento", hint: usuario['fechaNacimiento'] ?? ""),
-                _buildProfileField(label: "Teléfono", hint: usuario['telefono'] ?? ""),
+                _buildProfileField(
+                  label: "Nombre",
+                  hint: usuario['nombre'] ?? "",
+                ),
+                _buildProfileField(
+                  label: "Apellido",
+                  hint: usuario['apellido'] ?? "",
+                ),
+                _buildProfileField(
+                  label: "Fecha de nacimiento",
+                  hint: usuario['fechaNacimiento'] ?? "",
+                ),
+                _buildProfileField(
+                  label: "Teléfono",
+                  hint: usuario['telefono'] ?? "",
+                ),
                 _buildProfileField(
                   label: "Edad",
                   hint: usuario['fechaNacimiento'] != null
                       ? calcularEdad(usuario['fechaNacimiento'])
                       : "",
                 ),
-                _buildProfileField(label: "Enfermedad", hint: usuario['enfermedad'] ?? ""),
+                _buildProfileField(
+                  label: "Enfermedad",
+                  hint: usuario['enfermedad'] ?? "",
+                ),
 
                 SizedBox(height: screenHeight * 0.03),
 
@@ -151,7 +198,10 @@ class _ProfileViewState extends State<ProfileView> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) =>  EditProfileView(id:widget.id)),
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                EditProfileView(id: widget.id),
+                          ),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -205,10 +255,7 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget _buildProfileField({
-    required String label,
-    required String hint,
-  }) {
+  Widget _buildProfileField({required String label, required String hint}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
@@ -233,7 +280,10 @@ class _ProfileViewState extends State<ProfileView> {
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: Colors.black),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
             ),
           ),
         ],
@@ -241,7 +291,3 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 }
-
-
-
-

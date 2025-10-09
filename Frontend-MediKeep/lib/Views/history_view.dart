@@ -22,16 +22,18 @@ class HistoryView extends StatefulWidget {
 class _HistoryViewState extends State<HistoryView> {
   List<Map<String, dynamic>> medicamentos = [];
   bool mostrarPopupInicial = true; // Solo se muestra si NO hay medicamentos
-
+  String userName = "";
   @override
   void initState() {
     super.initState();
-    _fetchMedicamentos(widget.id); // Traer medicamentos al iniciar la pantalla
+    _fetchMedicamentos(widget.id);
+    _getuser();
+       // Traer medicamentos al iniciar la pantalla
   }
 
   // Función GET para obtener los medicamentos del usuario
   Future<void> _fetchMedicamentos( String userId) async {
-    final url = Uri.parse('http://localhost:3001/api/medicamento/usuario/$userId');
+    final url = Uri.parse('https://medikeep.onrender.com$userId');
 
     try {
       final response = await http.get(url);
@@ -63,6 +65,27 @@ class _HistoryViewState extends State<HistoryView> {
     }
   }
 
+  Future<void> _getuser() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost:3001/api/usuario/'+ widget.id),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        setState(() {
+          userName = responseData['correo'];
+        });
+      } else {
+        throw Exception('Failed to post data');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return NavBarMenu(
@@ -84,12 +107,12 @@ class _HistoryViewState extends State<HistoryView> {
                     alignment: Alignment.centerLeft,
                     child: IconButton(
                       icon: const Icon(Icons.arrow_back),
-                      onPressed: () {
+                      onPressed: () {                     
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => DashboardScreen(
-                              userName: "Usuario",
+                              userName: userName,
                             ),
                           ),
                         );

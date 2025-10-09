@@ -178,7 +178,7 @@ class MenuHamburguesa extends StatelessWidget {
                   children: [
                     const SizedBox(height: 8),
 
-                    // 🔹 Nuevo botón Inicio
+                    //  Nuevo botón Inicio
                     _MenuRow(
                       icon: Icons.home,
                       iconColor: const Color(0xFF3CAC6B),
@@ -189,7 +189,7 @@ class MenuHamburguesa extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => DashboardScreen(
-                              userName: userName ?? "Invitado", // ✅ aquí pasamos userName
+                              userName: userName ?? "Invitado", // aquí pasamos userName
                             ),
                           ),
                         );

@@ -5,7 +5,7 @@ import 'dart:convert';
 class RegisterView extends StatelessWidget {
   RegisterView({super.key});
 
-  final String apiUrl = 'http://localhost:3001/api/usuario'; 
+  final String apiUrl = 'https://medikeep.onrender.com';
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -14,8 +14,10 @@ class RegisterView extends StatelessWidget {
   final TextEditingController dobController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   String? _selectedIdType;
-
+  String userName = "";
   String result = '';
+
+
 
   Future<void> _register(BuildContext context) async {
     // Validación: verificar que ningún campo esté vacío
@@ -138,11 +140,14 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 40),
 
                   // Nombre
-                  const Text('Nombre*',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87)),
+                  const Text(
+                    'Nombre*',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Nombre'),
@@ -151,11 +156,14 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 25),
 
                   // Apellido
-                  const Text('Apellido*',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87)),
+                  const Text(
+                    'Apellido*',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Apellido'),
@@ -164,11 +172,14 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 25),
 
                   // Fecha de nacimiento
-                  const Text('Fecha de nacimiento*',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87)),
+                  const Text(
+                    'Fecha de nacimiento*',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('DD / MM / YYYY'),
@@ -178,19 +189,26 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 25),
 
                   // Documento de identidad
-                  const Text('Documento de identidad*',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87)),
+                  const Text(
+                    'Documento de identidad*',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   DropdownButtonFormField<String>(
                     decoration: _inputDecoration('Seleccione'),
                     items: const [
                       DropdownMenuItem(
-                          value: 'cc', child: Text('Cédula de ciudadanía')),
+                        value: 'cc',
+                        child: Text('Cédula de ciudadanía'),
+                      ),
                       DropdownMenuItem(
-                          value: 'ce', child: Text('Cédula de extranjería')),
+                        value: 'ce',
+                        child: Text('Cédula de extranjería'),
+                      ),
                       DropdownMenuItem(value: 'pp', child: Text('Pasaporte')),
                     ],
                     onChanged: (value) {
@@ -200,11 +218,14 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 25),
 
                   // Número de documento
-                  const Text('Número de documento*',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87)),
+                  const Text(
+                    'Número de documento*',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Número de documento'),
@@ -214,11 +235,14 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 25),
 
                   // Correo electrónico
-                  const Text('Correo electrónico*',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87)),
+                  const Text(
+                    'Correo electrónico*',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Correo electrónico'),
@@ -228,11 +252,14 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 25),
 
                   // Teléfono
-                  const Text('Teléfono*',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87)),
+                  const Text(
+                    'Teléfono*',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   TextFormField(
                     decoration: _inputDecoration('Teléfono'),
@@ -242,11 +269,14 @@ class RegisterView extends StatelessWidget {
                   const SizedBox(height: 25),
 
                   // Contraseña
-                  const Text('Contraseña*',
-                      style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black87)),
+                  const Text(
+                    'Contraseña*',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
                   const SizedBox(height: 10),
                   TextFormField(
                     obscureText: true,
@@ -288,8 +318,11 @@ class RegisterView extends StatelessWidget {
                       Expanded(child: Divider(thickness: 1)),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Icon(Icons.circle,
-                            size: 8, color: Colors.black54),
+                        child: Icon(
+                          Icons.circle,
+                          size: 8,
+                          color: Colors.black54,
+                        ),
                       ),
                       Expanded(child: Divider(thickness: 1)),
                     ],
@@ -300,10 +333,7 @@ class RegisterView extends StatelessWidget {
                   const Center(
                     child: Text(
                       '¿Ya tienes una cuenta?',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.black87,
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.black87),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -354,11 +384,7 @@ class RegisterView extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: Colors.black),
       ),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     );
   }
 }
-
-
-

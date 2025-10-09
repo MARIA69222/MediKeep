@@ -21,6 +21,14 @@ class _AddViewState extends State<AddView> {
   String? duracionSeleccionada;
   TimeOfDay? horaSeleccionada;
   bool usoProlongado = false;
+  String userName = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _getuser();
+       // Traer medicamentos al iniciar la pantalla
+  }
 
   Future<void> _seleccionarHora(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
@@ -69,7 +77,7 @@ class _AddViewState extends State<AddView> {
 
     try {
       final response = await http.post(
-        Uri.parse("http://localhost:3001/api/medicamento"),
+        Uri.parse("https://medikeep.onrender.com"),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(medicamentoData),
       );
@@ -106,12 +114,32 @@ class _AddViewState extends State<AddView> {
       );
     }
   }
+  Future<void> _getuser() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://medikeep.onrender.com'+ widget.id),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        setState(() {
+          userName = responseData['correo'];
+        });
+      } else {
+        throw Exception('Failed to post data');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return NavBarMenu(
       id: widget.id,
-      userName: "Maria", // ✅ mismo estilo que ProfileView
+      userName: userName, // ✅ mismo estilo que ProfileView
       showBack: true,
       child: Container(
         decoration: const BoxDecoration(
