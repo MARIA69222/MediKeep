@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_medikeep_1/Utils/config.dart';
 
 // Importamos las pantallas relacionadas.
 import 'dashboard_view.dart'; // Pantalla principal (DashboardScreen)
@@ -33,7 +34,7 @@ class _HistoryViewState extends State<HistoryView> {
 
   // Función GET para obtener los medicamentos del usuario
   Future<void> _fetchMedicamentos( String userId) async {
-    final url = Uri.parse('https://medikeep.onrender.com$userId');
+    final url = Uri.parse('${Config.serverUrl}medicamento/usuario/$userId');
 
     try {
       final response = await http.get(url);
@@ -68,7 +69,7 @@ class _HistoryViewState extends State<HistoryView> {
   Future<void> _getuser() async {
     try {
       final response = await http.get(
-        Uri.parse('http://localhost:3001/api/usuario/'+ widget.id),
+        Uri.parse('${Config.serverUrl}usuario/${widget.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -90,7 +91,7 @@ class _HistoryViewState extends State<HistoryView> {
   Widget build(BuildContext context) {
     return NavBarMenu(
       id: widget.id,
-      userName: "Usuario",
+      userName: userName,
       child: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(

@@ -1,8 +1,8 @@
 const { MongoClient, ObjectId } = require("mongodb");
 class Conexion {
   constructor() { 
-    //this.uri = "mongodb://localhost:27017";
-    this.uri = "mongodb+srv://camilla:<Akitutisun18>@cluster0.r9osiz4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+    this.uri = "mongodb://localhost:27017";
+    //this.uri = "mongodb+srv://mh1692984_db_user:U8MIbUSygYYBli6u@cluster.1icswz6.mongodb.net/?retryWrites=true&w=majority&appName=Cluster";
      this.client = new MongoClient(this.uri);
   }
     

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_medikeep_1/Utils/config.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -36,7 +37,7 @@ class _EditProfileViewState extends State<EditProfileView> {
   }
 
   Future<void> _loadUsuario(String userId) async {
-    final url = Uri.parse('https://medikeep.onrender.com$userId');
+    final url = Uri.parse('${Config.serverUrl}usuario/$userId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -63,7 +64,7 @@ class _EditProfileViewState extends State<EditProfileView> {
   Future<void> _getuser() async {
     try {
       final response = await http.get(
-        Uri.parse('https://medikeep.onrender.com'+ widget.id),
+        Uri.parse('${Config.serverUrl}usuario/${widget.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -114,7 +115,7 @@ class _EditProfileViewState extends State<EditProfileView> {
 
   Future<void> _guardarCambios() async {
     final userId = widget.id;
-    final url = Uri.parse('http://localhost:3001/api/usuario/$userId');
+    final url = Uri.parse('${Config.serverUrl}usuario/$userId');
 
     final body = {
       "nombre": nameController.text,

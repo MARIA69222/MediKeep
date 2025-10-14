@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_medikeep_1/Utils/config.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
@@ -25,7 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   String name = "";
   String id = "";
-  final String apiUrl = 'https://medikeep.onrender.com';
+  final String apiUrl = '${Config.serverUrl}usuario';
 
   Future<void> _getuser(String userName) async {
     try {

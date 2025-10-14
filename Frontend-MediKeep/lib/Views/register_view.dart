@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_medikeep_1/Utils/config.dart';
 
 class RegisterView extends StatelessWidget {
   RegisterView({super.key});
 
-  final String apiUrl = 'https://medikeep.onrender.com';
+  final String apiUrl = '${Config.serverUrl}usuario/';
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -66,7 +67,7 @@ class RegisterView extends StatelessWidget {
         print("Usuario creado: $responseData");
 
         // Ir directo al dashboard
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        Navigator.pushReplacementNamed(context, '/login');
       } else {
         throw Exception('Failed to post data');
       }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_medikeep_1/Utils/config.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import '../Widgets/navbar_menu.dart'; 
 
 class AddView extends StatefulWidget {
@@ -77,7 +77,7 @@ class _AddViewState extends State<AddView> {
 
     try {
       final response = await http.post(
-        Uri.parse("https://medikeep.onrender.com"),
+        Uri.parse('${Config.serverUrl}medicamento'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(medicamentoData),
       );
@@ -117,7 +117,7 @@ class _AddViewState extends State<AddView> {
   Future<void> _getuser() async {
     try {
       final response = await http.get(
-        Uri.parse('https://medikeep.onrender.com'+ widget.id),
+        Uri.parse('${Config.serverUrl}usuario/${widget.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

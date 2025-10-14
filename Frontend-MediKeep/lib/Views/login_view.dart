@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'register_view.dart';  //  importa el archivo de registro
+import 'package:flutter_medikeep_1/Utils/config.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -11,7 +12,7 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
-  final String apiUrl = 'https://medikeep.onrender.com'; 
+  final String apiUrl = '${Config.serverUrl}usuario/login'; 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 

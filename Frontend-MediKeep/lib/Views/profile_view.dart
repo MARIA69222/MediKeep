@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
+import 'package:flutter_medikeep_1/Utils/config.dart';
 import '../Widgets/navbar_menu.dart';
 import 'edit_profile_view.dart';
 import 'dashboard_view.dart';
@@ -29,7 +29,7 @@ class _ProfileViewState extends State<ProfileView> {
   // Traer datos del usuario desde la API
 
   Future<void> _fetchUsuario(String userId) async {
-    final url = Uri.parse('https://medikeep.onrender.com$userId');
+    final url = Uri.parse('${Config.serverUrl}usuario/$userId');
 
     try {
       final response = await http.get(url);
@@ -49,7 +49,7 @@ class _ProfileViewState extends State<ProfileView> {
   Future<void> _getuser() async {
     try {
       final response = await http.get(
-        Uri.parse('https://medikeep.onrender.com'+widget.id),
+        Uri.parse('${Config.serverUrl}usuario/${widget.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
